@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Damage Detection Result</title>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .status-text {
+            margin-bottom: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .image-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 420px;
+        }
+
+        .image-box h4 {
+            margin-bottom: 10px;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .btn-container {
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Damage Detection Result</h2>
+
+    <!-- STATUS -->
+    <div class="status-text">
+        {{ status }}
+    </div>
+
+    <div class="image-container">
+        <!-- ORIGINAL IMAGE -->
+        <div class="image-box">
+            <h4>Original Image</h4>
+            <img
+              src="{{ url_for('static', filename=original_image) }}"
+              alt="Original Image">
+        </div>
+
+        <!-- DAMAGE IMAGE -->
+        <div class="image-box">
+            <h4>Detected Damage</h4>
+            <img
+              src="{{ url_for('static', filename=output_image) }}"
+              alt="Damage Detection Result">
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <button onclick="window.location.href='/upload'">
+            Upload Another Image
+        </button>
+    </div>
+</div>
+
+</body>
+</html>

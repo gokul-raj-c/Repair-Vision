@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Repair Vision</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <!-- Favicons -->
+    <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
+    <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="{{ url_for('static', filename='assets/css/main.css') }}" rel="stylesheet">
+    
+    <style>
+    .file-upload {
+      background-color: #ffffff;
+      width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .file-upload-btn {
+      width: 100%;
+      margin: 0;
+      color: #fff;
+      background: #494e54;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      border-bottom: 4px solid #494e54;
+      transition: all .2s ease;
+      outline: none;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    
+
+    .file-upload-btn:active {
+      border: 0;
+      transition: all .2s ease;
+    }
+
+    .file-upload-content {
+      display: none;
+      text-align: center;
+    }
+
+    .file-upload-input {
+      position: absolute;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .image-upload-wrap {
+      margin-top: 20px;
+      border: 4px dashed #000000;
+      position: relative;
+    }
+
+    .image-title-wrap {
+      padding: 0 15px 15px 15px;
+      color: #222;
+    }
+
+    .drag-text {
+      text-align: center;
+    }
+
+    .drag-text h3 {
+      font-weight: 100;
+      text-transform: uppercase;
+      color: #000000;
+      padding: 60px 0;
+    }
+
+    .file-upload-image {
+      max-height: 200px;
+      max-width: 200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .remove-image {
+      width: 200px;
+      margin: 0;
+      color: #fff;
+      background: #cd4535;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      border-bottom: 4px solid #b02818;
+      transition: all .2s ease;
+      outline: none;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .upload-image {
+      width: 200px;
+      margin: 0;
+      color: #fff;
+      background: #20ea05;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      border-bottom: 4px solid #1bbc06;
+      transition: all .2s ease;
+      outline: none;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .remove-image:hover {
+      background: #c13b2a;
+      color: #ffffff;
+      transition: all .2s ease;
+      cursor: pointer;
+    }
+
+    .remove-image:active {
+      border: 0;
+      transition: all .2s ease;
+    }
+    </style>
+
+  </head>
+
+  <body class="index-page">
+
+    <!-- Header -->
+    <header id="header" class="header fixed-top">
+      <div class="branding d-flex align-items-cente">
+        <div class="container position-relative d-flex align-items-center justify-content-between">
+          <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
+            <!-- Uncomment the line below if you also wish to use an image logo -->
+            <!-- <img src="assets/img/logo.png" alt=""> -->
+            <h1 class="sitename">Repair Vision</h1>
+            <span></span>
+          </a>
+          <nav id="navmenu" class="navmenu">
+            <ul>
+              <li><a href="{{ url_for('home') }}">Home<br></a></li>
+            </ul>
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+          </nav>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Contents -->
+    <main class="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        
+        <h2>Upload Image</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page" style="min-height: 70vh;">
+      <div class="container">
+        <div class="file-upload">
+          <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Add
+            Image</button>
+
+          <div class="image-upload-wrap">
+            <input class="file-upload-input" type='file' id="file" onchange="readURL(this);" accept="image/*" />
+            <div class="drag-text">
+              <h3>Drag and drop a file or select add Image</h3>
+            </div>
+          </div>
+          <div class="file-upload-content">
+            <img class="file-upload-image" src="#" alt="your image" />
+            <div class="image-title-wrap">
+              <!--<span class="image-title">Uploaded Image</span><br><br>-->
+              <button type="button" onclick="removeUpload()" class="remove-image">Remove </button>
+              <button type="button" onclick="upload()" class="upload-image">Detect </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="footer accent-background">
+      <div class="container footer-top">
+        <div class="row gy-4">
+          <div class="col-lg-5 col-md-12 footer-about">
+            <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
+              <span class="sitename">Repair Vision</span>
+            </a>
+            <p>© <span>Copyright</span> <strong class="px-1 sitename">Repair Vision</strong> <span>All Rights Reserved</span></p>
+          </div>
+       </div>
+      </div>
+    </footer>
+
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Preloader -->
+    <div id="preloader"></div>
+
+    <!-- Vendor JS Files -->
+    <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+
+    <!-- Main JS File -->
+    <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+    <!-- Template Main JS File -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <script>
+  function readURL(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        $('.image-upload-wrap').hide();
+        $('.file-upload-image').attr('src', e.target.result);
+        $('.file-upload-content').show();
+      };
+      reader.readAsDataURL(input.files[0]);
+    } else {
+      removeUpload();
+    }
+  }
+
+  function removeUpload() {
+    $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+    $('.file-upload-content').hide();
+    $('.image-upload-wrap').show();
+  }
+
+  function upload() {
+    var fileInput = document.getElementById("file");
+
+    if (!fileInput.files.length) {
+      Swal.fire("Error", "Please select an image first", "error");
+      return;
+    }
+
+    var formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    $.ajax({
+      url: "/predict",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+
+      beforeSend: function () {
+        Swal.fire({
+          title: "Processing image...",
+          text: "Please wait",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => Swal.showLoading()
+        });
+      },
+
+      success: function (res) {
+        Swal.close();
+
+        // 🔹 Handle backend status correctly
+        if (res.status === "no_car") {
+          Swal.fire("Result", "No car detected in the image", "info");
+        }
+        else if (res.status === "no_damage") {
+          Swal.fire("Result", "Car detected but no damage found", "success");
+        }
+        else if (res.status === "damage_detected") {
+          Swal.fire({
+            icon: "warning",
+            title: "Damage Detected",
+            text: "Click OK to view result"
+          }).then(() => {
+            window.location.href = "/";
+          });
+        }
+        else {
+          Swal.fire("Error", "Unexpected response from server", "error");
+        }
+      },
+
+      error: function () {
+        Swal.fire("Error", "Server error occurred", "error");
+      }
+    });
+  }
+</script>
+
+
+
+  </body>
+</html>

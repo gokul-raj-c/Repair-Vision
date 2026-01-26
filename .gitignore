@@ -1,0 +1,13 @@
+# Virtual environment
+venv/
+
+# TensorFlow
+__pycache__/
+*.log
+
+# Uploads & datasets
+models/
+
+# OS
+.DS_Store
+Thumbs.db

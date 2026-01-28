@@ -245,26 +245,31 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    <script>
+  // ---------- PREVIEW IMAGE ----------
   function readURL(input) {
     if (input.files && input.files[0]) {
       var reader = new FileReader();
+
       reader.onload = function (e) {
         $('.image-upload-wrap').hide();
         $('.file-upload-image').attr('src', e.target.result);
         $('.file-upload-content').show();
       };
+
       reader.readAsDataURL(input.files[0]);
     } else {
       removeUpload();
     }
   }
 
+  // ---------- REMOVE IMAGE ----------
   function removeUpload() {
     $('.file-upload-input').replaceWith($('.file-upload-input').clone());
     $('.file-upload-content').hide();
     $('.image-upload-wrap').show();
   }
 
+  // ---------- UPLOAD & PREDICT ----------
   function upload() {
     var fileInput = document.getElementById("file");
 
@@ -285,8 +290,8 @@
 
       beforeSend: function () {
         Swal.fire({
-          title: "Processing image...",
-          text: "Please wait",
+          title: "Processing Image",
+          text: "Detecting car and damage...",
           allowOutsideClick: false,
           allowEscapeKey: false,
           didOpen: () => Swal.showLoading()
@@ -296,20 +301,29 @@
       success: function (res) {
         Swal.close();
 
-        // 🔹 Handle backend status correctly
+        // ---------- BACKEND STATUS HANDLING ----------
         if (res.status === "no_car") {
-          Swal.fire("Result", "No car detected in the image", "info");
+          Swal.fire({
+            icon: "info",
+            title: "No Car Detected",
+            text: "Please upload an image containing a car"
+          });
         }
         else if (res.status === "no_damage") {
-          Swal.fire("Result", "Car detected but no damage found", "success");
+          Swal.fire({
+            icon: "success",
+            title: "No Damage Found",
+            text: "Car detected but no damage identified"
+          });
         }
         else if (res.status === "damage_detected") {
           Swal.fire({
             icon: "warning",
             title: "Damage Detected",
-            text: "Click OK to view result"
+            text: "Click OK to view detailed result"
           }).then(() => {
-            window.location.href = "/";
+            // 🔥 Redirect to result page (shows original + detected image)
+            window.location.href = "/result";
           });
         }
         else {
@@ -323,6 +337,7 @@
     });
   }
 </script>
+
 
 
 

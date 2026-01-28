@@ -11,3 +11,7 @@ models/
 # OS
 .DS_Store
 Thumbs.db
+
+# Uploaded images & generated outputs
+static/uploads/
+static/outputs/

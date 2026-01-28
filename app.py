@@ -31,7 +31,7 @@ damage_model = tf.saved_model.load(DAMAGE_MODEL_PATH)
 infer_damage = damage_model.signatures["serving_default"]
 
 # YOLO Damage Parts Model
-YOLO_MODEL_PATH = os.path.join(BASE_DIR, "models", "yolo_damage_detect_model.pt")
+YOLO_MODEL_PATH = os.path.join(BASE_DIR, "models", "damage_identification_model.pt")
 yolo_model = YOLO(YOLO_MODEL_PATH)
 
 # ---------------- ROUTES ---------------- #
@@ -47,9 +47,10 @@ def upload():
 @app.route("/result")
 def result():
     return render_template(
-        "result.html",
+        "res.html",
         original_image=session.get("original_image"),
-        output_image=session.get("output_image")
+        output_image=session.get("output_image"),
+        detected_parts=session.get("detected_parts")
     )
 
 # ---------------- IMAGE PREPROCESSING ---------------- #
@@ -91,8 +92,9 @@ def predict():
     )[0].numpy()[0][0]
 
     car_confidence = 1 - car_pred
+    print("car confidence:",car_confidence)
 
-    if car_confidence < 0.4:
+    if car_confidence < 0.5:
         return jsonify({"status": "no_car"})
 
     # ---------- DAMAGE DETECTION ---------- #
@@ -102,42 +104,94 @@ def predict():
     )[0].numpy()[0][0]
 
     damage_confidence = 1 - damage_pred
+    print("damage confidence:",damage_confidence)
 
-    if damage_confidence < 0.4:
+    if damage_confidence < 0.5:
         return jsonify({"status": "no_damage"})
 
     # ---------- YOLO DAMAGE PART DETECTION ---------- #
-    results = yolo_model(
-        input_path,
-        conf=0.15,
-        iou=0.4
+
+    #device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+    results = yolo_model.predict(
+        source=input_path,
+        conf=0.45,
+        iou=0.4,
+        device="cpu",
+        save=False,
+        verbose=False
     )
     img = cv2.imread(input_path)
+    detected_parts = []
+
+
+    detected = False
 
     for r in results:
         for box in r.boxes:
+            detected = True
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             cls_id = int(box.cls[0])
             conf = float(box.conf[0])
+            if conf < 0.4:
+                continue
+
+            detected_parts.append({
+                "part": yolo_model.names[cls_id],
+                "confidence": int(conf * 100)
+            })
 
             label = f"{yolo_model.names[cls_id]} {conf:.2f}"
 
+            # Draw bounding box
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(
-                img,
-                label,
-                (x1, y1 - 10),
+
+            # Prepare label text
+            label_text = f"{yolo_model.names[cls_id].capitalize()} ({int(conf*100)}%)"
+
+            # Get text size
+            (text_width, text_height), baseline = cv2.getTextSize(
+                label_text,
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
-                (0, 255, 0),
                 2
             )
+
+            # Ensure label stays inside image
+            y_label = max(y1, text_height + 10)
+
+            # Draw filled rectangle behind text
+            cv2.rectangle(
+                img,
+                (x1, y_label - text_height - 10),
+                (x1 + text_width + 6, y_label),
+                (0, 255, 0),
+                -1
+            )
+
+            # Draw label text (black for contrast)
+            cv2.putText(
+                img,
+                label_text,
+                (x1 + 3, y_label - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 0, 0),
+                2
+            )
+
+
+    if not detected:
+        return jsonify({"status": "damage_but_part_not_detected"})
 
     cv2.imwrite(output_path, img)
 
     session["original_image"] = f"uploads/{filename}"
     session["output_image"] = f"outputs/{filename}"
     session["status"] = "Damage detected with affected parts highlighted"
+    session["detected_parts"] = detected_parts
+
 
     return jsonify({"status": "damage_detected"})
 

@@ -270,76 +270,81 @@
   }
 
   // ---------- UPLOAD & PREDICT ----------
-  function upload() {
-    var fileInput = document.getElementById("file");
+function upload() {
+  var fileInput = document.getElementById("file");
 
-    if (!fileInput.files.length) {
-      Swal.fire("Error", "Please select an image first", "error");
-      return;
-    }
-
-    var formData = new FormData();
-    formData.append("file", fileInput.files[0]);
-
-    $.ajax({
-      url: "/predict",
-      type: "POST",
-      data: formData,
-      processData: false,
-      contentType: false,
-
-      beforeSend: function () {
-        Swal.fire({
-          title: "Processing Image",
-          text: "Detecting car and damage...",
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          didOpen: () => Swal.showLoading()
-        });
-      },
-
-      success: function (res) {
-        Swal.close();
-
-        // ---------- BACKEND STATUS HANDLING ----------
-        if (res.status === "no_car") {
-          Swal.fire({
-            icon: "info",
-            title: "No Car Detected",
-            text: "Please upload an image containing a car"
-          });
-        }
-        else if (res.status === "no_damage") {
-          Swal.fire({
-            icon: "success",
-            title: "No Damage Found",
-            text: "Car detected but no damage identified"
-          });
-        }
-        else if (res.status === "damage_detected") {
-          Swal.fire({
-            icon: "warning",
-            title: "Damage Detected",
-            text: "Click OK to view detailed result"
-          }).then(() => {
-            // 🔥 Redirect to result page (shows original + detected image)
-            window.location.href = "/result";
-          });
-        }
-        else {
-          Swal.fire("Error", "Unexpected response from server", "error");
-        }
-      },
-
-      error: function () {
-        Swal.fire("Error", "Server error occurred", "error");
-      }
-    });
+  if (!fileInput.files.length) {
+    Swal.fire("Error", "Please select an image first", "error");
+    return;
   }
+
+  var formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  $.ajax({
+    url: "/predict",
+    type: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+
+    beforeSend: function () {
+      Swal.fire({
+        title: "Processing Image",
+        text: "Detecting car and damage...",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
+    },
+
+    success: function (res) {
+      Swal.close();
+
+      if (res.status === "no_car") {
+        Swal.fire({
+          icon: "info",
+          title: "No Car Detected",
+          text: "Please upload an image containing a car"
+        });
+      }
+      else if (res.status === "no_damage") {
+        Swal.fire({
+          icon: "success",
+          title: "No Damage Found",
+          text: "Car detected but no damage identified"
+        });
+      }
+      else if (res.status === "damage_but_part_not_detected") {
+        Swal.fire({
+          icon: "warning",
+          title: "Damage Detected",
+          text: "Damage is present but the affected part could not be identified clearly"
+        }).then(() => {
+          window.location.href = "/";
+        });
+      }
+      else if (res.status === "damage_detected") {
+        Swal.fire({
+          icon: "warning",
+          title: "Damage Detected",
+          text: "Click OK to view detailed result"
+        }).then(() => {
+          window.location.href = "/result";
+        });
+      }
+      else {
+        Swal.fire("Error", "Unexpected response from server", "error");
+      }
+    },
+
+    error: function () {
+      Swal.fire("Error", "Server error occurred", "error");
+    }
+  });
+}
+
 </script>
-
-
-
 
   </body>
 </html>

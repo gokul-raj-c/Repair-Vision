@@ -158,7 +158,7 @@ def predict():
         })
 
         color = get_severity_color(conf)
-        cv2.rectangle(img, (x1, y1), (x2, y2), color, 3)
+        cv2.rectangle(img, (x1, y1), (x2, y2), color, 1)
 
     cv2.imwrite(output_path, img)
 

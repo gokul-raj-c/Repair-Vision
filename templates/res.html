@@ -102,106 +102,106 @@
       margin-top: 80px;
     }
   </style>
+
 </head>
 
 <body class="index-page">
 
-  <!-- ======= Header ======= -->
-  <header id="header" class="header fixed-top">
-    <div class="branding d-flex align-items-center">
-      <div class="container position-relative d-flex align-items-center justify-content-between">
-        <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
-          <h1 class="sitename">Repair Vision</h1>
-        </a>
-
-        <nav id="navmenu" class="navmenu">
-          <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-          </ul>
-          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-        </nav>
+  <!-- Header -->
+    <header id="header" class="header fixed-top">
+      <div class="branding d-flex align-items-cente">
+        <div class="container position-relative d-flex align-items-center justify-content-between">
+          <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
+            <!-- Uncomment the line below if you also wish to use an image logo -->
+            <!-- <img src="assets/img/logo.png" alt=""> -->
+            <h1 class="sitename">Repair Vision</h1>
+            <span></span>
+          </a>
+          <nav id="navmenu" class="navmenu">
+            <ul>
+              <li><a href="{{ url_for('home') }}">Home<br></a></li>
+            </ul>
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+          </nav>
+        </div>
       </div>
-    </div>
-  </header>
-  <!-- End Header -->
+    </header>
 
-  <!-- ======= Main ======= -->
-  <main class="main">
+  <!-- ===== MAIN ===== -->
+<main class="main">
+  <div class="result-container">
 
-    <div class="result-container">
+    <h2 class="text-center mb-4">Damage Detection Result</h2>
 
-      <h2 class="result-title">Damage Detection Result</h2>
+    <div class="image-container">
 
-      <div class="status-text">
+      <!-- LEFT: OUTPUT IMAGE -->
+      <div class="image-box">
+        <h4 class="mb-3 text-center">Detected Damage</h4>
+        <img src="{{ url_for('static', filename=output_image) }}" alt="Detected Damage">
       </div>
 
-      <div class="image-container">
+     <div class="image-box text-start">
+  <h4 class="mb-3">Detected Damages</h4>
 
-<!-- LEFT: Predicted Image -->
-<div class="image-box">
-  <h4>Detected Damage</h4>
-  <img src="{{ url_for('static', filename=output_image) }}" alt="Damage Detection Result">
-</div>
-
-<!-- RIGHT: Overall Damage + Parts -->
-<div class="image-box text-start">
-
-  <!-- OVERALL DAMAGE SEVERITY -->
-  {% if severity %}
-  <h4>Overall Damage Severity</h4>
-
-  {% if severity.label == "Severe" %}
-    <span class="badge bg-danger fs-6 mb-3 d-inline-block">
-      Severe ({{ severity.confidence }}%)
-    </span>
-  {% elif severity.label == "Moderate" %}
-    <span class="badge bg-warning text-dark fs-6 mb-3 d-inline-block">
-      Moderate ({{ severity.confidence }}%)
-    </span>
-  {% else %}
-    <span class="badge bg-success fs-6 mb-3 d-inline-block">
-      Minor ({{ severity.confidence }}%)
-    </span>
-  {% endif %}
-  {% endif %}
-
-  <!-- DAMAGE PARTS LIST -->
-  <h4 class="mt-3">Detected Damage Parts</h4>
-
-  {% if detected_parts %}
+  {% if detected_parts and detected_parts|length > 0 %}
   <ul class="list-group">
-    {% for p in detected_parts %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      {{ p.part.replace('-', ' ').title() }}
 
-      <span class="badge
-        {% if p.confidence >= 75 %} bg-danger
-        {% elif p.confidence >= 50 %} bg-warning text-dark
-        {% else %} bg-success
-        {% endif %}
-      ">
-        {{ p.confidence }}%
-      </span>
+    {% for d in detected_parts %}
+    <li class="list-group-item">
+
+      <!-- 🔴 CAR PART (SHOW FIRST) -->
+      <div class="fw-bold">
+        {{ d.part|default('Unknown')|replace('-', ' ')|title }}
+
+        <span class="badge ms-2 bg-secondary">
+          {{ d.part_conf }}%
+        </span>
+      </div>
+
+      <!-- 🟡 DAMAGE TYPE (SHOW BELOW) -->
+      <div class="text-muted small mt-1">
+        Damage Type:
+        <strong>
+          {{ d.damage|default('Unknown')|replace('-', ' ')|title }}
+        </strong>
+
+        <span class="badge ms-2
+          {% if d.damage_conf >= 75 %} bg-danger
+          {% elif d.damage_conf >= 50 %} bg-warning text-dark
+          {% else %} bg-success
+          {% endif %}
+        ">
+          {{ d.damage_conf }}%
+        </span>
+      </div>
+
     </li>
     {% endfor %}
+
   </ul>
   {% else %}
-  <p class="text-muted">No damage parts detected</p>
+  <p class="text-muted">No damage detected</p>
   {% endif %}
-
 </div>
 
 
-      <div class="btn-container">
-        <button class="btn-primary-custom" onclick="window.location.href='/upload'">
-          Upload Another Image
-        </button>
-      </div>
 
     </div>
 
-  </main>
-  <!-- End Main -->
+    <!-- BUTTON -->
+    <div class="text-center mt-4">
+      <a href="/upload" class="btn btn-primary px-4 py-2 rounded-pill">
+        Upload Another Image
+      </a>
+
+      <button onclick="savePDF()" class="btn btn-primary px-4 py-2 rounded-pill">
+        Save As PDF
+      </button>
+    </div>
+
+  </div>
+</main>
 
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
@@ -231,6 +231,12 @@
 
   <!-- Main JS -->
   <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+  <script>
+    function savePDF(){
+      window.print();
+    }
+  </script>
 
 </body>
 </html>

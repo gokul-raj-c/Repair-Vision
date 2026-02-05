@@ -1,116 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Damage Detection Result</title>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <title>Repair Vision</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-        }
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
+  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
-        .container {
-            width: 90%;
-            margin: 40px auto;
-            text-align: center;
-        }
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Montserrat&family=Poppins&display=swap" rel="stylesheet">
 
-        h2 {
-            margin-bottom: 10px;
-        }
+  <!-- Vendor CSS -->
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
 
-        .status-text {
-            margin-bottom: 25px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
+  <!-- Main CSS -->
+  <link href="{{ url_for('static', filename='assets/css/main.css') }}" rel="stylesheet">
 
-        .image-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
+  <!-- Result Page Styles -->
+  <style>
+    main.main {
+      padding-top: 100px; /* space for fixed header */
+    }
 
-        .image-box {
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 420px;
-        }
+    .result-container {
+      max-width: 1200px;
+      margin: 0 auto 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
 
-        .image-box h4 {
-            margin-bottom: 10px;
-        }
+    .result-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 35px;
+      color: #000;
+    }
 
-        .image-box img {
-            width: 100%;
-            height: auto;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
+    .status-text {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #0d6efd;
+    }
 
-        .btn-container {
-            margin-top: 30px;
-        }
+    .image-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    .image-box {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      width: 520px;
+    }
 
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    .image-box h4 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #000;
+    }
+
+    .image-box img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .btn-container {
+      margin-top: 40px;
+    }
+
+    .btn-primary-custom {
+      padding: 12px 36px;
+      font-size: 16px;
+      border-radius: 50px;
+      background-color: #0d6efd;
+      border: none;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    .btn-primary-custom:hover {
+      background-color: #084298;
+    }
+
+    .footer {
+      margin-top: 80px;
+    }
+  </style>
 </head>
-<body>
 
-<div class="container">
-    <h2>Damage Detection Result</h2>
+<body class="index-page">
 
-    <!-- STATUS -->
-    <div class="status-text">
-        {{ status }}
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top">
+    <div class="branding d-flex align-items-center">
+      <div class="container position-relative d-flex align-items-center justify-content-between">
+        <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
+          <h1 class="sitename">Repair Vision</h1>
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+      </div>
     </div>
+  </header>
+  <!-- End Header -->
 
-    <div class="image-container">
-        <!-- ORIGINAL IMAGE -->
-        <div class="image-box">
-            <h4>Original Image</h4>
-            <img
-              src="{{ url_for('static', filename=original_image) }}"
-              alt="Original Image">
-        </div>
+  <!-- ======= Main ======= -->
+  <main class="main">
 
-        <!-- DAMAGE IMAGE -->
-        <div class="image-box">
-            <h4>Detected Damage</h4>
-            <img
-              src="{{ url_for('static', filename=output_image) }}"
-              alt="Damage Detection Result">
-        </div>
-    </div>
+    <div class="result-container">
 
-    <div class="btn-container">
-        <button onclick="window.location.href='/upload'">
-            Upload Another Image
-        </button>
-    </div>
+      <h2 class="result-title">Damage Detection Result</h2>
+
+      <div class="status-text">
+      </div>
+
+      <div class="image-container">
+
+<!-- LEFT: Predicted Image -->
+<div class="image-box">
+  <h4>Detected Damage</h4>
+  <img src="{{ url_for('static', filename=output_image) }}" alt="Damage Detection Result">
 </div>
+
+<!-- RIGHT: Overall Damage + Parts -->
+<div class="image-box text-start">
+
+  <!-- OVERALL DAMAGE SEVERITY -->
+  {% if severity %}
+  <h4>Overall Damage Severity</h4>
+
+  {% if severity.label == "Severe" %}
+    <span class="badge bg-danger fs-6 mb-3 d-inline-block">
+      Severe ({{ severity.confidence }}%)
+    </span>
+  {% elif severity.label == "Moderate" %}
+    <span class="badge bg-warning text-dark fs-6 mb-3 d-inline-block">
+      Moderate ({{ severity.confidence }}%)
+    </span>
+  {% else %}
+    <span class="badge bg-success fs-6 mb-3 d-inline-block">
+      Minor ({{ severity.confidence }}%)
+    </span>
+  {% endif %}
+  {% endif %}
+
+  <!-- DAMAGE PARTS LIST -->
+  <h4 class="mt-3">Detected Damage Parts</h4>
+
+  {% if detected_parts %}
+  <ul class="list-group">
+    {% for p in detected_parts %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      {{ p.part.replace('-', ' ').title() }}
+
+      <span class="badge
+        {% if p.confidence >= 75 %} bg-danger
+        {% elif p.confidence >= 50 %} bg-warning text-dark
+        {% else %} bg-success
+        {% endif %}
+      ">
+        {{ p.confidence }}%
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-muted">No damage parts detected</p>
+  {% endif %}
+
+</div>
+
+
+      <div class="btn-container">
+        <button class="btn-primary-custom" onclick="window.location.href='/upload'">
+          Upload Another Image
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+  <!-- End Main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-5 col-md-12 footer-about">
+          <a href="{{ url_for('home') }}" class="logo d-flex align-items-center">
+            <span class="sitename">Repair Vision</span>
+          </a>
+          <p>
+            © <strong>Repair Vision</strong> — All Rights Reserved
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- End Footer -->
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
+
+  <!-- Vendor JS -->
+  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+
+  <!-- Main JS -->
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
 
 </body>
 </html>

@@ -261,9 +261,6 @@ def send_report():
             return jsonify({"status": "no_data"})
 
         # ---------- CREATE PDF AUTOMATICALLY ----------
-        from reportlab.lib.pagesizes import A4
-        from reportlab.pdfgen import canvas
-        from datetime import datetime
 
         pdf_path = os.path.join(OUTPUT_FOLDER, "damage_report.pdf")
 

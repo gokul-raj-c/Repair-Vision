@@ -316,6 +316,38 @@ margin-top:40px;
   </div>
 </div>
 
+<!-- LOADING POPUP -->
+<div id="loadingPopup" style="
+ display:none;
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ background:rgba(0,0,0,0.6);
+ justify-content:center;
+ align-items:center;
+ z-index:99999;
+">
+
+  <div style="
+    background:white;
+    padding:40px;
+    border-radius:15px;
+    text-align:center;
+    width:320px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.3);
+  ">
+
+    <div class="spinner-border text-success" style="width:60px;height:60px;"></div>
+
+    <h5 style="margin-top:20px;">Sending Report...</h5>
+    <p style="color:gray;">Please wait</p>
+
+  </div>
+</div>
+
+
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="container footer-top">
@@ -363,6 +395,11 @@ function sendMail(){
         return;
     }
 
+    closePopup();
+
+    // 🔄 show loading
+    document.getElementById("loadingPopup").style.display = "flex";
+
     let formData = new FormData();
     formData.append("email", email);
 
@@ -373,12 +410,17 @@ function sendMail(){
     .then(res => res.json())
     .then(data => {
 
+        // hide loading
+        document.getElementById("loadingPopup").style.display = "none";
+
         if(data.status === "sent"){
-            alert("✅ Report sent successfully!");
-            closePopup();
+            alert("✅ Report sent successfully to email!");
         }
         else if(data.status === "no_email"){
             alert("Enter email");
+        }
+        else if(data.status === "no_data"){
+            alert("Generate result first");
         }
         else{
             alert("❌ Failed to send email");
@@ -386,9 +428,11 @@ function sendMail(){
 
     })
     .catch(err=>{
+        document.getElementById("loadingPopup").style.display = "none";
         alert("Server error sending mail");
     });
 }
+
 </script>
 
 

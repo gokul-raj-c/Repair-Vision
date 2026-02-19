@@ -36,6 +36,41 @@ OUTPUT_FOLDER = os.path.join(BASE_DIR, "static/outputs")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+# ---------------- COST DATABASE ---------------- #
+
+PART_BASE_PRICE = {
+    "Front-bumper": 4000,
+    "Back-bumper": 3500,
+    "Hiperpanel": 5000,
+    "Quarter-panel": 4500,
+    "Front-door": 5000,
+    "Back-door": 4500,
+    "Fender": 3000,
+    "Hood": 6000,
+    "Trunk": 5500,
+    "Roof": 8000,
+    "Headlight": 2500,
+    "Tail-light": 2000,
+    "Mirror": 1500,
+    "Windshield": 7000,
+    "Front-wheel": 3000,
+    "Back-wheel": 3000,
+    "Grille": 2000,
+    "License-plate": 800
+}
+
+DAMAGE_MULTIPLIER = {
+    "Scratch": 0.3,
+    "Paint chip": 0.35,
+    "Dent": 0.6,
+    "Cracked": 0.75,
+    "Broken part": 1.0,
+    "Missing part": 1.2,
+    "Flaking": 0.4,
+    "Corrosion": 0.7
+}
+
+
 # ---------------- MODELS ---------------- #
 
 # Car vs No-Car
@@ -65,7 +100,8 @@ def result():
     return render_template(
         "res.html",
         output_image=session.get("output_image"),
-        detected_parts=session.get("detected_parts")
+        detected_parts=session.get("detected_parts"),
+        total_cost=session.get("total_cost")
     )
 
 # ---------------- PREPROCESS ---------------- #
@@ -167,11 +203,18 @@ def predict():
             # ---------- DRAW BOX ON ORIGINAL IMAGE ---------- #
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 6)
 
+            # ---------- COST CALCULATION ---------- #
+            base_price = PART_BASE_PRICE.get(part_name, 3000)  # default price
+            multiplier = DAMAGE_MULTIPLIER.get(damage_name, 0.5)
+
+            damage_cost = int(base_price * multiplier)
+
             detections.append({
                 "part": part_name,
                 "part_conf": int(part_conf * 100),
                 "damage": damage_name,
-                "damage_conf": int(damage_conf *100)
+                "damage_conf": int(damage_conf *100),
+                "cost": damage_cost
             })
 
     if not detections:
@@ -181,6 +224,9 @@ def predict():
 
     session["output_image"] = f"outputs/{filename}"
     session["detected_parts"] = detections
+    # ---------- TOTAL COST ---------- #
+    total_cost = sum(d["cost"] for d in detections)
+    session["total_cost"] = total_cost
 
     return jsonify({"status": "damage_detected"})
 
@@ -216,24 +262,69 @@ def download_pdf():
 
     c.drawImage(img_path, 50, height - 420, width=300, height=300)
 
-    # ---------- DAMAGE DETAILS ----------
+    # ---------- DAMAGE TABLE TITLE ----------
     y = height - 450
     c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, y, "Detected Damages:")
+    c.drawString(50, y, "Detected Damage Details")
+    y -= 25
+
+    # ---------- TABLE HEADER ----------
+    c.setFont("Helvetica-Bold", 11)
+
+    c.drawString(50, y, "SI")
+    c.drawString(80, y, "Part")
+    c.drawString(170, y, "Part %")
+    c.drawString(230, y, "Damage Type")
+    c.drawString(340, y, "Damage %")
+    c.drawString(420, y, "Cost (Rs)")
+    y -= 10
+
+    c.line(50, y, 550, y)  # horizontal line
     y -= 20
 
-    c.setFont("Helvetica", 12)
+    c.setFont("Helvetica", 11)
+
+    total_cost = 0
+    si = 1
 
     if detected_parts:
         for d in detected_parts:
-            text = f"{d['part']} ({d['part_conf']}%)  →  {d['damage']} ({d['damage_conf']}%)"
-            c.drawString(60, y, text)
+            part = d.get("part", "Unknown")
+            part_conf = d.get("part_conf", 0)
+            damage = d.get("damage", "Unknown")
+            damage_conf = d.get("damage_conf", 0)
+            cost = d.get("cost", 0)
+
+            total_cost += cost
+
+            c.drawString(50, y, str(si))
+            c.drawString(80, y, part)
+            c.drawString(170, y, f"{part_conf}%")
+            c.drawString(230, y, damage)
+            c.drawString(340, y, f"{damage_conf}%")
+            c.drawString(420, y, f"Rs {cost}")
+
             y -= 18
+            si += 1
+            y -= 18
+            si += 1
+
+            # next page if space finished
             if y < 80:
                 c.showPage()
                 y = height - 50
+                c.setFont("Helvetica", 11)
     else:
         c.drawString(60, y, "No damage detected")
+        y -= 20
+    
+    # ---------- TOTAL COST ----------
+    y -= 10
+    c.line(50, y, 550, y)
+    y -= 25
+
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(320, y, f"Total Estimated Cost: Rs {total_cost}")
 
     # ---------- FOOTER ----------
     c.setFont("Helvetica-Oblique", 10)
@@ -280,24 +371,73 @@ def send_report():
         img_path = os.path.join(BASE_DIR, "static", output_image)
         c.drawImage(img_path, 50, height - 420, width=300, height=300)
 
-        # Damage list
+        # ---------- DAMAGE TABLE TITLE ----------
         y = height - 450
         c.setFont("Helvetica-Bold", 14)
-        c.drawString(50, y, "Detected Damages:")
+        c.drawString(50, y, "Detected Damage Details")
         y -= 25
 
-        c.setFont("Helvetica", 12)
+        # ---------- TABLE HEADER ----------
+        c.setFont("Helvetica-Bold", 11)
+
+        c.drawString(50, y, "SI")
+        c.drawString(80, y, "Part")
+        c.drawString(170, y, "Part %")
+        c.drawString(230, y, "Damage Type")
+        c.drawString(340, y, "Damage %")
+        c.drawString(420, y, "Cost (Rs)")
+        y -= 10
+
+        c.line(50, y, 550, y)  # horizontal line
+        y -= 20
+
+        c.setFont("Helvetica", 11)
+
+        total_cost = 0
+        si = 1
 
         if detected_parts:
             for d in detected_parts:
-                text = f"{d['part']} ({d['part_conf']}%) → {d['damage']} ({d['damage_conf']}%)"
-                c.drawString(60, y, text)
+                part = d.get("part", "Unknown")
+                part_conf = d.get("part_conf", 0)
+                damage = d.get("damage", "Unknown")
+                damage_conf = d.get("damage_conf", 0)
+                cost = d.get("cost", 0)
+
+                total_cost += cost
+
+                c.drawString(50, y, str(si))
+                c.drawString(80, y, part)
+                c.drawString(170, y, f"{part_conf}%")
+                c.drawString(230, y, damage)
+                c.drawString(340, y, f"{damage_conf}%")
+                c.drawString(420, y, f"Rs {cost}")
+
                 y -= 18
-                if y < 60:
+                si += 1
+                y -= 18
+                si += 1
+
+                # next page if space finished
+                if y < 80:
                     c.showPage()
                     y = height - 50
+                    c.setFont("Helvetica", 11)
         else:
             c.drawString(60, y, "No damage detected")
+            y -= 20
+    
+        # ---------- TOTAL COST ----------
+        y -= 10
+        c.line(50, y, 550, y)
+        y -= 25
+
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(320, y, f"Total Estimated Cost: Rs {total_cost}")
+
+        # ---------- FOOTER ----------
+        c.setFont("Helvetica-Oblique", 10)
+        c.drawString(180, 30, "Generated by Repair Vision AI System")
 
         c.save()
 

@@ -176,10 +176,46 @@
         </span>
       </div>
 
+      <!-- 💰 COST -->
+      <div style="margin-top:6px;">
+        <span style="
+          background:#e9f7ef;
+          color:#198754;
+          padding:6px 12px;
+          border-radius:20px;
+          font-weight:600;
+          font-size:14px;
+        ">
+          Estimated Cost: ₹{{ d.cost }}
+        </span>
+      </div>
+
     </li>
     {% endfor %}
 
   </ul>
+
+  <!-- 🟢 TOTAL COST BOX -->
+  <div style="
+    background:#e9f7ef;
+    padding:18px;
+    border-radius:14px;
+    margin-top:20px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  ">
+
+    <h4 style="color:#198754; font-weight:700;">
+      Total Estimated Repair Cost: ₹{{ total_cost }}
+    </h4>
+
+    <p style="font-size:13px;color:gray;margin:0;">
+      *Cost calculated based on detected damage type and affected car parts
+    </p>
+
+  </div>
+
+
   {% else %}
   <p class="text-muted">No damage detected</p>
   {% endif %}
